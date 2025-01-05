@@ -1,12 +1,11 @@
 use super::Element;
-use crate::parameters::{ NX,NV};
 
 impl Element {
     pub fn density(&self) -> Vec<f64> {
-        let mut density_vec = vec![0.;NX];
+        let mut density_vec = vec![0.;self.config.NX];
 
-        for ix in 0..NX {
-            for iv in 0..NV {
+        for ix in 0..self.config.NX {
+            for iv in 0..self.config.NV {
                 density_vec[ix] += self.element_grid[ix][iv]* self.dv;
             }
         }

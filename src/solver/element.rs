@@ -3,7 +3,7 @@ mod operator;
 mod moments_calculation;
 use std::{fmt::format, ptr::null};
 
-use crate::parameters::{NX,NV};
+use crate::config::Config;
 use hdf5::{File, Group};
 use ndarray::Array2;
 
@@ -18,18 +18,19 @@ pub struct Element {
     lx_boundary:u32,
     ux_boundary:u32,
     group_h5:Group,
+    pub config:Config
 }
 
 impl Element {
-    pub fn new(element_name:String, lv:f64,init_cond:u32,z_charge:i32,mu:f64,lx_boundary:u32,ux_boundary:u32,file:File) -> Element {
-        let element_grid = vec![vec![0.;NV];NX]; 
-        let dv = 2.*lv/NV as f64;
+    pub fn new(element_name:String, lv:f64,init_cond:u32,z_charge:i32,mu:f64,lx_boundary:u32,ux_boundary:u32,file:File,config:Config) -> Element {
+        let element_grid = vec![vec![0.;config.NV];config.NX]; 
+        let dv = 2.*lv/config.NV as f64;
 
         
         let group: Group = file.create_group(&element_name).unwrap();
-
+        
         Element{element_name:element_name,element_grid:element_grid,lv:lv,dv:dv  , z_charge:z_charge,  mu:mu,   
-            init_cond:init_cond,lx_boundary:lx_boundary,ux_boundary:ux_boundary,group_h5:group}
+            init_cond:init_cond,lx_boundary:lx_boundary,ux_boundary:ux_boundary,group_h5:group,config:config}
     }
 
     pub fn init(&mut self) {
@@ -57,7 +58,7 @@ impl Element {
         let data = vec_to_array(&self.element_grid);
 
         
-        let dataset = self.group_h5.new_dataset::<f64>().shape([NX,NV]).create(t.to_string().as_str()).unwrap();
+        let dataset = self.group_h5.new_dataset::<f64>().shape([self.config.NX,self.config.NV]).create(t.to_string().as_str()).unwrap();
     
     
         dataset.write(&data);
